@@ -30,8 +30,15 @@ async function run() {
         // Collections
         const db = client.db("guardianCare");
         const users = db.collection("users");
+        const meals = db.collection("meals");
 
         // All routes here
+
+        // Get all meals
+        app.get("/meals", async (req, res) => {
+            const allMeals = await meals.find({}).toArray();
+            res.json(allMeals);
+        });
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
