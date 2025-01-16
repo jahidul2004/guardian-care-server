@@ -34,6 +34,12 @@ async function run() {
 
         // All routes here
 
+        // Create a new user
+        app.post("/users", async (req, res) => {
+            const newUser = await users.insertOne(req.body);
+            res.json(newUser);
+        });
+
         // Get all meals
         app.get("/meals", async (req, res) => {
             const allMeals = await meals.find({}).toArray();
@@ -57,6 +63,8 @@ async function run() {
             );
             res.json(updatedMeal);
         });
+
+        //
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
