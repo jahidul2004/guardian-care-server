@@ -40,6 +40,12 @@ async function run() {
             res.json(newUser);
         });
 
+        // Get user by email
+        app.get("/user/:email", async (req, res) => {
+            const user = await users.findOne({ email: req.params.email });
+            res.json(user);
+        });
+
         // Get all meals
         app.get("/meals", async (req, res) => {
             const allMeals = await meals.find({}).toArray();
