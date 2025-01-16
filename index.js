@@ -48,6 +48,16 @@ async function run() {
             res.json(meal);
         });
 
+        // Update meal by id
+        app.put("/meals/:id", async (req, res) => {
+            const updatedMeal = await meals.findOneAndUpdate(
+                { _id: new ObjectId(req.params.id) },
+                { $set: { ...req.body } },
+                { returnDocument: "after" }
+            );
+            res.json(updatedMeal);
+        });
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log(
