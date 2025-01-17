@@ -107,6 +107,14 @@ async function run() {
             const allUpcomingMeals = await upcomingMeals.find({}).toArray();
             res.json(allUpcomingMeals);
         });
+
+        // get requested meals by email
+        app.get("/mealRequests/:email", async (req, res) => {
+            const allRequestedMeals = await mealRequests
+                .find({ userEmail: req.params.email })
+                .toArray();
+            res.json(allRequestedMeals);
+        });
     } finally {
         // Ensures that the client will close when you finish/error
         // await client.close();
