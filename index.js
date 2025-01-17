@@ -32,6 +32,7 @@ async function run() {
         const users = db.collection("users");
         const meals = db.collection("meals");
         const mealRequests = db.collection("mealRequests");
+        const upcomingMeals = db.collection("upcomingMeals");
 
         // All routes here
 
@@ -82,11 +83,9 @@ async function run() {
                 });
 
                 if (existingRequest) {
-                    return res
-                        .status(400)
-                        .json({
-                            message: "You already request for this meal!",
-                        });
+                    return res.status(400).json({
+                        message: "You already request for this meal!",
+                    });
                 }
                 const newMealRequest = await mealRequests.insertOne(req.body);
 
@@ -102,6 +101,12 @@ async function run() {
         console.log(
             "Pinged your deployment. You successfully connected to MongoDB!"
         );
+
+        // get upcoming meals
+        app.get("/upcomingMeals", async (req, res) => {
+            const allUpcomingMeals = await upcomingMeals.find({}).toArray();
+            res.json(allUpcomingMeals);
+        });
     } finally {
         // Ensures that the client will close when you finish/error
         // await client.close();
