@@ -31,6 +31,7 @@ async function run() {
         const db = client.db("guardianCare");
         const users = db.collection("users");
         const meals = db.collection("meals");
+        const mealRequests = db.collection("mealRequests");
 
         // All routes here
 
@@ -70,7 +71,31 @@ async function run() {
             res.json(updatedMeal);
         });
 
-        //
+        //meal requests post api
+        app.post("/mealRequests", async (req, res) => {
+            const { mealId, userEmail } = req.body;
+
+            try {
+                const existingRequest = await mealRequests.findOne({
+                    mealId,
+                    userEmail,
+                });
+
+                if (existingRequest) {
+                    return res
+                        .status(400)
+                        .json({
+                            message: "You already request for this meal!",
+                        });
+                }
+                const newMealRequest = await mealRequests.insertOne(req.body);
+
+                res.status(201).json(newMealRequest);
+            } catch (error) {
+                console.error("Error adding meal request:", error);
+                res.status(500).json({ message: "Internal server error" });
+            }
+        });
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
