@@ -33,6 +33,7 @@ async function run() {
         const meals = db.collection("meals");
         const mealRequests = db.collection("mealRequests");
         const upcomingMeals = db.collection("upcomingMeals");
+        const reviews = db.collection("reviews");
 
         // All routes here
 
@@ -114,6 +115,41 @@ async function run() {
                 .find({ userEmail: req.params.email })
                 .toArray();
             res.json(allRequestedMeals);
+        });
+
+        // delete meal request by id and email
+        app.delete("/mealRequests/:id/:email", async (req, res) => {
+            const deletedMealRequest = await mealRequests.deleteOne({
+                _id: new ObjectId(req.params.id),
+                userEmail: req.params.email,
+            });
+            res.json(deletedMealRequest);
+        });
+
+        // Review post api
+        app.post("/reviews", async (req, res) => {
+            const { mealId, userEmail } = req.body;
+
+            try {
+                const existingReview = await reviews.findOne({
+                    mealId,
+                    userEmail,
+                });
+
+                if (existingReview) {
+                    return res.status(400).json({
+                        message: "You have already reviewed this meal.",
+                    });
+                }
+
+                const newReview = await reviews.insertOne(req.body);
+                res.status(201).json(newReview);
+            } catch (error) {
+                console.error("Error adding review:", error);
+                res.status(500).json({
+                    message: "Failed to add review. Please try again later.",
+                });
+            }
         });
     } finally {
         // Ensures that the client will close when you finish/error
