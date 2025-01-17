@@ -49,6 +49,12 @@ async function run() {
             res.json(user);
         });
 
+        // get all users
+        app.get("/users", async (req, res) => {
+            const allUsers = await users.find({}).toArray();
+            res.json(allUsers);
+        });
+
         // Get all meals
         app.get("/meals", async (req, res) => {
             const allMeals = await meals.find({}).toArray();
