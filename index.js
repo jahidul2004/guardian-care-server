@@ -174,6 +174,12 @@ async function run() {
                 .toArray();
             res.json(allReviews);
         });
+
+        // get all reviews
+        app.get("/reviews", async (req, res) => {
+            const allReviews = await reviews.find({}).toArray();
+            res.json(allReviews);
+        });
     } finally {
         // Ensures that the client will close when you finish/error
         // await client.close();
