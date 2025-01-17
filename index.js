@@ -151,6 +151,23 @@ async function run() {
                 });
             }
         });
+
+        // Reviews get api by userEmail
+        app.get("/reviews/:email", async (req, res) => {
+            const allReviews = await reviews
+                .find({ userEmail: req.params.email })
+                .toArray();
+            res.json(allReviews);
+        });
+
+        // getReviews by mealId
+        app.get("/reviews/meal/:mealId", async (req, res) => {
+            console.log(req.params.mealId);
+            const allReviews = await reviews
+                .find({ mealId: new ObjectId(req.params.mealId).toString() })
+                .toArray();
+            res.json(allReviews);
+        });
     } finally {
         // Ensures that the client will close when you finish/error
         // await client.close();
