@@ -55,6 +55,12 @@ async function run() {
             res.json(allUsers);
         });
 
+        // add a new meal
+        app.post("/meals", async (req, res) => {
+            const newMeal = await meals.insertOne(req.body);
+            res.json(newMeal);
+        });
+
         // Get all meals
         app.get("/meals", async (req, res) => {
             const allMeals = await meals.find({}).toArray();
@@ -129,6 +135,22 @@ async function run() {
         app.get("/upcomingMeals", async (req, res) => {
             const allUpcomingMeals = await upcomingMeals.find({}).toArray();
             res.json(allUpcomingMeals);
+        });
+
+        //get upcoming meals by id
+        app.get("/upcomingMeals/:id", async (req, res) => {
+            const upcomingMeal = await upcomingMeals.findOne({
+                _id: new ObjectId(req.params.id),
+            });
+            res.json(upcomingMeal);
+        });
+
+        // Delete upcoming meal by id
+        app.delete("/upcomingMeals/:id", async (req, res) => {
+            const deletedUpcomingMeal = await upcomingMeals.deleteOne({
+                _id: new ObjectId(req.params.id),
+            });
+            res.json(deletedUpcomingMeal);
         });
 
         // Post upcoming meals
