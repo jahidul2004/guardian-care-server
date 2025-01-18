@@ -109,6 +109,16 @@ async function run() {
             res.json(allMealRequests);
         });
 
+        // Update meal request by id
+        app.put("/mealRequests/:id", async (req, res) => {
+            const updatedMealRequest = await mealRequests.findOneAndUpdate(
+                { _id: new ObjectId(req.params.id) },
+                { $set: { ...req.body } },
+                { returnDocument: "after" }
+            );
+            res.json(updatedMealRequest);
+        });
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log(
@@ -119,6 +129,12 @@ async function run() {
         app.get("/upcomingMeals", async (req, res) => {
             const allUpcomingMeals = await upcomingMeals.find({}).toArray();
             res.json(allUpcomingMeals);
+        });
+
+        // Post upcoming meals
+        app.post("/upcomingMeals", async (req, res) => {
+            const newUpcomingMeal = await upcomingMeals.insertOne(req.body);
+            res.json(newUpcomingMeal);
         });
 
         // get requested meals by email
