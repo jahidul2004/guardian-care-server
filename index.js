@@ -103,6 +103,12 @@ async function run() {
             }
         });
 
+        // get all meal requests
+        app.get("/mealRequests", async (req, res) => {
+            const allMealRequests = await mealRequests.find({}).toArray();
+            res.json(allMealRequests);
+        });
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log(
