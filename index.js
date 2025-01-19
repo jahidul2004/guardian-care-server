@@ -85,6 +85,14 @@ async function run() {
             res.json(updatedMeal);
         });
 
+        //delete meal by id
+        app.delete("/meals/:id", async (req, res) => {
+            const deletedMeal = await meals.deleteOne({
+                _id: new ObjectId(req.params.id),
+            });
+            res.json(deletedMeal);
+        });
+
         //meal requests post api
         app.post("/mealRequests", async (req, res) => {
             const { mealId, userEmail } = req.body;
@@ -223,6 +231,14 @@ async function run() {
         app.get("/reviews", async (req, res) => {
             const allReviews = await reviews.find({}).toArray();
             res.json(allReviews);
+        });
+
+        //delete review by id
+        app.delete("/reviews/:id", async (req, res) => {
+            const deletedReview = await reviews.deleteOne({
+                _id: new ObjectId(req.params.id),
+            });
+            res.json(deletedReview);
         });
     } finally {
         // Ensures that the client will close when you finish/error
