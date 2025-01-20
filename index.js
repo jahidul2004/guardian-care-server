@@ -208,10 +208,10 @@ async function run() {
         });
 
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
-        console.log(
-            "Pinged your deployment. You successfully connected to MongoDB!"
-        );
+        // await client.db("admin").command({ ping: 1 });
+        // console.log(
+        //     "Pinged your deployment. You successfully connected to MongoDB!"
+        // );
 
         // get upcoming meals
         app.get("/upcomingMeals", async (req, res) => {
@@ -233,6 +233,16 @@ async function run() {
                 _id: new ObjectId(req.params.id),
             });
             res.json(deletedUpcomingMeal);
+        });
+
+        // Update upcoming meal by id
+        app.put("/upcomingMeals/:id", async (req, res) => {
+            const updatedUpcomingMeal = await upcomingMeals.findOneAndUpdate(
+                { _id: new ObjectId(req.params.id) },
+                { $set: { ...req.body } },
+                { returnDocument: "after" }
+            );
+            res.json(updatedUpcomingMeal);
         });
 
         // Post upcoming meals
