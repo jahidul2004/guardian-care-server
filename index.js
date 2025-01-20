@@ -341,6 +341,30 @@ async function run() {
             res.json(deletedReview);
         });
 
+        // Update review by id
+        app.put("/reviews/:id", async (req, res) => {
+            try {
+                const updatedReview = await reviews.findOneAndUpdate(
+                    { _id: new ObjectId(req.params.id) },
+                    { $set: { ...req.body } },
+                    { returnDocument: "after" }
+                );
+
+                if (!updatedReview) {
+                    return res
+                        .status(404)
+                        .json({ message: "Review not found" });
+                }
+
+                res.json(updatedReview);
+            } catch (error) {
+                console.error(error);
+                res.status(500).json({
+                    message: "Server error. Please try again.",
+                });
+            }
+        });
+
         // get dashboard stats
         app.get("/dashboard", async (req, res) => {
             const totalUsers = await users.countDocuments();
