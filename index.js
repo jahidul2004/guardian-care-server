@@ -1,8 +1,9 @@
 const express = require("express");
 const cors = require("cors");
+require("dotenv").config();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const app = express();
 const port = process.env.PORT || 3000;
-require("dotenv").config();
 
 // Middleware
 app.use(cors());
@@ -34,8 +35,55 @@ async function run() {
         const mealRequests = db.collection("mealRequests");
         const upcomingMeals = db.collection("upcomingMeals");
         const reviews = db.collection("reviews");
+        const memberships = db.collection("membership");
+        const transactions = db.collection("transactions");
 
         // All routes here
+
+        //Stripe payment intent
+        app.post("/create-payment-intent", async (req, res) => {
+            const { price } = req.body;
+
+            const amount = parseInt(price * 100);
+
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount,
+                currency: "usd",
+                payment_method_types: ["card"],
+            });
+
+            res.send({
+                clientSecret: paymentIntent.client_secret,
+            });
+        });
+
+        // transaction post api
+        app.post("/transactions", async (req, res) => {
+            const newTransaction = await transactions.insertOne(req.body);
+            res.json(newTransaction);
+        });
+
+        //get transactions by email
+        app.get("/transactions/:email", async (req, res) => {
+            const allTransactions = await transactions
+                .find({ userEmail: req.params.email })
+                .toArray();
+            res.json(allTransactions);
+        });
+
+        // membership by id
+        app.get("/membership/:id", async (req, res) => {
+            const membership = await memberships.findOne({
+                _id: new ObjectId(req.params.id),
+            });
+            res.json(membership);
+        });
+
+        //get all memberships
+        app.get("/memberships", async (req, res) => {
+            const allMemberships = await memberships.find({}).toArray();
+            res.json(allMemberships);
+        });
 
         // Create a new user
         app.post("/users", async (req, res) => {
@@ -53,6 +101,32 @@ async function run() {
         app.get("/users", async (req, res) => {
             const allUsers = await users.find({}).toArray();
             res.json(allUsers);
+        });
+
+        // Update user role
+        app.patch("/users/:id", async (req, res) => {
+            const id = req.params.id;
+            const { role } = req.body;
+
+            const result = await users.updateOne(
+                { _id: new ObjectId(id) },
+                { $set: { role } }
+            );
+
+            res.json({ modifiedCount: result.modifiedCount });
+        });
+
+        // update user badge by email
+        app.patch("/users/badge/:email", async (req, res) => {
+            const email = req.params.email;
+            const { badge } = req.body;
+
+            const result = await users.updateOne(
+                { email },
+                { $set: { badge } }
+            );
+
+            res.json({ modifiedCount: result.modifiedCount });
         });
 
         // add a new meal
@@ -239,6 +313,27 @@ async function run() {
                 _id: new ObjectId(req.params.id),
             });
             res.json(deletedReview);
+        });
+
+        // get dashboard stats
+        app.get("/dashboard", async (req, res) => {
+            const totalUsers = await users.countDocuments();
+            const totalMeals = await meals.countDocuments();
+            const totalMealRequests = await mealRequests.countDocuments();
+            const totalUpcomingMeals = await upcomingMeals.countDocuments();
+            const totalReviews = await reviews.countDocuments();
+            const totalMemberships = await memberships.countDocuments();
+            const totalTransactions = await transactions.countDocuments();
+
+            res.json({
+                totalUsers,
+                totalMeals,
+                totalMealRequests,
+                totalUpcomingMeals,
+                totalReviews,
+                totalMemberships,
+                totalTransactions,
+            });
         });
     } finally {
         // Ensures that the client will close when you finish/error
